@@ -7,7 +7,7 @@ app = Flask(__name__)
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
-    userData, userRepos = backend.userInfo("nhridoy")
+    userData, userRepos = backend.userInfo("")
 
     def prof(userData):
         avatar_url = userData['avatar_url']
@@ -87,13 +87,28 @@ def home():
                     </div>
                 ''')
         return userProfile
-    userProfile = prof(userData)
+
+    if userData["message"] == 'Not Found':
+        # print(userData)
+        userProfile = ""
+    else:
+        userProfile = ""
+
     if request.method == 'POST':
         userName = request.form.get('userName')
         # print(userName)
-        userData, userRepos = backend.userInfo(str(userName))
-        # print(userData)
-        userProfile = prof(userData)
+        if userName == str(""):
+            userProfile = Markup(f'''
+            <div class = "d-grid d-flex align-items-center justify-content-center bg-danger p-2 link-light border border-3 border-primary">Enter UserName</div>
+            ''')
+        else:
+            userData, userRepos = backend.userInfo(str(userName))
+            if "message" in userData.keys():
+                userProfile = Markup(f'''
+            <div class = "d-grid d-flex align-items-center justify-content-center bg-danger p-2 link-light border border-3 border-primary">Wrong UserName</div>
+            ''')
+            else:
+                userProfile = prof(userData)
     return render_template("index.html", userData=userData, userRepos=userRepos, userProfile=userProfile)
 
 
